@@ -1,4 +1,5 @@
 package com.example.project.controller;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +24,7 @@ public class UserController {
         for (User user : users) {
             sb.append("ID: ").append(user.getId()).append(", Name: ").append(user.getName()).append("\n");
         }
+
         return sb.toString();
     }
 }

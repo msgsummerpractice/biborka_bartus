@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import com.example.project.model.User;
 
-public class AKindOfRepository {
+public class UserRepository {
 
-	List<User> users;
+    List<User> users;
 
-    public AKindOfRepository() {
+    public UserRepository() {
         users = new ArrayList<>();
         users.add(new User(1L, "John Doe"));
         users.add(new User(2L, "Jane Smith"));
