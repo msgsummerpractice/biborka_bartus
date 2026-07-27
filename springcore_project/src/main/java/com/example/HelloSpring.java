@@ -1,15 +1,25 @@
 package com.example;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
+@Component
 public class HelloSpring{
 
-    // private String message;
+    @Qualifier("good")
+    private Message message;
 
-    // public void setMessage(String message){
-    //     this.message  = message;
-    // }
+    public HelloSpring() {
+        message = new Message();
+    }
+
+    @Autowired
+    public HelloSpring(Message message) {
+        this.message = message;
+    }
 
     public void getMessage(){
-        System.out.println("Hello, Spring!");
+        System.out.println("Hello Spring! +" + message.format());
     }
 }
