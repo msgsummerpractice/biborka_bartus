@@ -33,4 +33,11 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("ID: 1, Name: John Doe\nID: 2, Name: Jane Smith\n"));
     }
+
+    @Test
+    public void testGetUsersWithInvalidId() throws Exception {
+        mockMvc.perform(get("/users").param("id", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Invalid ID"));
+    }
 }
