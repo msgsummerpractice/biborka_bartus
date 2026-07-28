@@ -3,27 +3,33 @@ package com.example.project.service;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
+import static org.mockito.MockitoAnnotations.openMocks;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.project.model.User;
 import com.example.project.repository.UserRepository;
 
-@ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
+    @InjectMocks
     private UserServiceImpl userService;
 
     @Mock
     private UserRepository userRepository;
 
+    @BeforeEach
+    public void setUp() {
+        openMocks(this);
+    }
+    
     @Test
     public void testGetAllUsers() {
-        userService = new UserServiceImpl(userRepository);
-        List<User> mockUsers = List.of(new User(), new User());
-        when(userRepository.getAllUsers()).thenReturn(mockUsers);
-
+        when(userRepository.getAllUsers()).thenReturn(List.of(
+                new User(1L, "John Doe"),
+                new User(2L, "Jane Smith")
+        ));
         List<User> users = userService.getAllUsers();
         assertEquals(2, users.size());
     }
