@@ -27,7 +27,7 @@ public class UserController {
         List<User> users = userservice.getAllUsers();
         StringBuilder sb = new StringBuilder();
         for (User user : users) {
-            sb.append("ID: ").append(user.getId()).append(", Name: ").append(user.getName()).append("\n");
+            sb.append("ID: ").append(user.getId()).append(", Name: ").append(user.getUsername()).append("\n");
         }
 
         return users;
