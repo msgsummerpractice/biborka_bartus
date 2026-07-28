@@ -11,7 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(UserController.class)
@@ -27,8 +27,7 @@ public class UserControllerTest {
     public void testGetUsers() throws Exception {
         when(userService.getAllUsers()).thenReturn(List.of(
                 new User(1L, "John Doe"),
-                new User(2L, "Jane Smith")
-        ));
+                new User(2L, "Jane Smith")));
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[{\"id\":1,\"name\":\"John Doe\"},{\"id\":2,\"name\":\"Jane Smith\"}]"));
@@ -44,11 +43,8 @@ public class UserControllerTest {
 
     @Test
     public void testGetUserByIdWithInvalidId() throws Exception {
-        try{
-            mockMvc.perform(get("/users/-1"))
-                    .andExpect(status().isBadRequest());
-        } catch (Exception e) {
-            
-        }
+        assertThrows(Exception.class, () -> {
+            mockMvc.perform(get("/users/-1"));
+        });
     }
 }
