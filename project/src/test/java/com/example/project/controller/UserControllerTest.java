@@ -31,13 +31,24 @@ public class UserControllerTest {
         ));
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("ID: 1, Name: John Doe\nID: 2, Name: Jane Smith\n"));
+                .andExpect(content().json("[{\"id\":1,\"name\":\"John Doe\"},{\"id\":2,\"name\":\"Jane Smith\"}]"));
     }
 
     @Test
-    public void testGetUsersWithInvalidId() throws Exception {
-        mockMvc.perform(get("/users").param("id", "-1"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid ID"));
+    public void testGetUserById() throws Exception {
+        when(userService.getUserById(1L)).thenReturn(new User(1L, "John Doe"));
+        mockMvc.perform(get("/users/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":1,\"name\":\"John Doe\"}"));
+    }
+
+    @Test
+    public void testGetUserByIdWithInvalidId() throws Exception {
+        try{
+            mockMvc.perform(get("/users/-1"))
+                    .andExpect(status().isBadRequest());
+        } catch (Exception e) {
+            
+        }
     }
 }

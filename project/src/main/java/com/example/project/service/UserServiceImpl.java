@@ -9,11 +9,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
-    public UserServiceImpl() {
-        this.userRepository = new UserRepository();
-    }
-
+    
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -21,5 +17,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAllUsers() {
         return userRepository.getAllUsers();
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.getUserById(id);
     }
 }
