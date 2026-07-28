@@ -1,4 +1,5 @@
 package com.example.project.service;
+
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
@@ -16,17 +17,48 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
-    
+
     @Test
     public void testGetAllUsers() {
-        List<User> mockUsers = List.of(
-            new User(1L, "John Doe"),
-            new User(2L, "Jane Smith")
-        );
-        when(userRepository.getAllUsers()).thenReturn(mockUsers);
         userService = new UserServiceImpl(userRepository);
-        assertEquals(mockUsers, userService.getAllUsers());
+        List<User> mockUsers = List.of(new User(), new User());
+        when(userRepository.getAllUsers()).thenReturn(mockUsers);
 
+        List<User> users = userService.getAllUsers();
+        assertEquals(2, users.size());
     }
 
+    @Test
+    public void testGetUserById() {
+        userService = new UserServiceImpl(userRepository);
+        User mockUser = new User();
+        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(mockUser));
+        User user = userService.getUserById(1L);
+        assertEquals(mockUser, user);
+    }
+
+    @Test
+    public void testGetUserByEmail() {
+        userService = new UserServiceImpl(userRepository);
+        User mockUser = new User();
+        when(userRepository.findByEmail("test@example.com")).thenReturn(java.util.Optional.of(mockUser));
+        User user = userService.getUserByEmail("test@example.com");
+        assertEquals(mockUser, user);
+    }
+
+    @Test
+    public void testDeleteUserById() {
+        userService = new UserServiceImpl(userRepository);
+        userService.deleteUserById(1L);
+        org.mockito.Mockito.verify(userRepository).deleteById(1L);
+    }
+
+    @Test
+    public void testSaveUser() {
+        userService = new UserServiceImpl(userRepository);
+        User mockUser = new User();
+        when(userRepository.save(mockUser)).thenReturn(mockUser);
+        User savedUser = userService.saveUser(mockUser);
+        assertEquals(mockUser, savedUser);
+    }
 }

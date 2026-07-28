@@ -25,14 +25,14 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<String> getUsers(@RequestParam(required = false) Long id) {
-        if(id != null && id < 0) {
+        if (id != null && id < 0) {
             return ResponseEntity.badRequest().body("Invalid ID");
         }
 
         List<User> users = userservice.getAllUsers();
         StringBuilder sb = new StringBuilder();
         for (User user : users) {
-            sb.append("ID: ").append(user.getId()).append(", Name: ").append(user.getName()).append("\n");
+            sb.append("ID: ").append(user.getId()).append(", Name: ").append(user.getUsername()).append("\n");
         }
 
         return ResponseEntity.ok(sb.toString());
