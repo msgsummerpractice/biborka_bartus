@@ -1,33 +1,33 @@
-<h1 class="text-lg">Dog Gallery</h1>
-<p>Take a look at these dogs:</p>
-<div class="grid sm:grid-cols-1 lg:grid-cols-3 gap-4">
-  <div>
-    <img
-      class="w-3/4 p-8 m-8 border bg-contain"
-      style="background-color: var(--color-orange-50)"
-      src="goldenretriever.jpg"
-    />
-    <p>Golden Retriever</p>
-    <p>Loyal and friendly</p>
-  </div>
+<mat-toolbar color="primary" class="flex justify-end">
+  <button mat-icon-button>
+    <mat-icon>home</mat-icon>
+  </button>
+  <span class="example-fill-remaining-space"></span>
 
-  <div>
-    <img
-      class="w-3/4 p-8 m-8 border bg-contain"
-      style="background-color: var(--color-orange-50)"
-      src="beagle.jpg"
-    />
-    <p>Beagle</p>
-    <p>Curious and merry</p>
-  </div>
+  <a mat-button href="https://dog.ceo/dog-api/">Dogs</a>
+  <a mat-button href="https://www.pexels.com/search/cat/">Cats</a>
+</mat-toolbar>
 
-  <div>
-    <img
-      class="w-3/4 p-8 m-8 border bg-contain"
-      style="background-color: var(--color-orange-50)"
-      src="bulldog.jpg"
-    />
-    <p>Bulldog</p>
-    <p>Gentle and affectionate</p>
+<div class="p-4">
+  <h1 class="p-2 text-lg">Dog Gallery</h1>
+  <p class="p-2">Take a look at these dogs:</p>
+  <div class="p-4 grid sm:grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="border bg-contain" style="background-color: var(--color-orange-50)">
+      <img class="w-3/4 p-8 m-8" src="goldenretriever.jpg" />
+      <p style="text-align: center">Golden Retriever</p>
+      <p style="text-align: center">Loyal and friendly</p>
+    </div>
+
+    <div class="p-4 border bg-contain" style="background-color: var(--color-orange-50)">
+      <img class="w-3/4 p-8 m-8" src="beagle.jpg" />
+      <p style="text-align: center">Beagle</p>
+      <p style="text-align: center">Curious and merry</p>
+    </div>
+
+    <div class="p-4 border bg-contain" style="background-color: var(--color-orange-50)">
+      <img class="w-3/4 p-8 m-8" src="bulldog.jpg" />
+      <p style="text-align: center">Bulldog</p>
+      <p style="text-align: center">Gentle and affectionate</p>
+    </div>
   </div>
 </div>
