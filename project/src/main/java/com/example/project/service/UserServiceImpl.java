@@ -3,6 +3,8 @@ package com.example.project.service;
 import org.springframework.stereotype.Service;
 import com.example.project.model.User;
 import com.example.project.repository.UserRepository;
+import com.example.project.dto.UserRequest;
+import com.example.project.dto.UserResponse;
 
 import java.util.List;
 
@@ -20,9 +22,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.getAllUsers();
     }
 
-    @Override
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
+    public UserResponse getUserById(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow();
+        
+        return convertToResponse(user);
     }
 
     @Override
@@ -39,4 +43,31 @@ public class UserServiceImpl implements UserService {
     public <S extends User> S saveUser(S entity) {
         return userRepository.save(entity);
     }
+
+    @Override
+    public UserResponse createUser(UserRequest request) {
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+
+        User savedUser = userRepository.save(user);
+
+        UserResponse response = new UserResponse();
+        response.setId(savedUser.getId());
+        response.setUsername(savedUser.getUsername());
+        response.setEmail(savedUser.getEmail());
+
+        return response;
+    }
+
+    private UserResponse convertToResponse(User user) {
+        UserResponse response = new UserResponse();
+        response.setId(user.getId());
+        response.setUsername(user.getUsername());
+        response.setEmail(user.getEmail());
+        response.setCreatedAt(user.getCreatedAt());
+        return response;
+    }
+
 }

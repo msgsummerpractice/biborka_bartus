@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import com.example.project.dto.UserResponse;
 import com.example.project.model.User;
 import com.example.project.repository.UserRepository;
 
@@ -39,7 +40,7 @@ public class UserServiceTest {
         userService = new UserServiceImpl(userRepository);
         User mockUser = new User();
         when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(mockUser));
-        User user = userService.getUserById(1L);
+        UserResponse user = userService.getUserById(1L);
         assertEquals(mockUser, user);
     }
 

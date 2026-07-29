@@ -1,4 +1,6 @@
 package com.example.project.model;
+import java.time.LocalDateTime;
+
 import jakarta.annotation.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,6 +37,9 @@ public class User {
 
     @Column(name = "password")
     private String password;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     public User(Long id, String username) {
         this.id = id;
