@@ -4,12 +4,12 @@ import { Homepage } from './homepage/homepage';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Ownprofile } from './ownprofile/ownprofile';
-import { Profile } from './profile';
 
 export const routes: Routes = [
-  { path: '', component: Homepage },
+  { path: '', redirectTo: 'homepage', pathMatch: 'full' },
   { path: 'homepage', component: Homepage },
   { path: 'profile', component: Ownprofile },
+  { path: 'login', loadComponent: () => import('./login/login').then((m) => m.Login) },
   { path: '**', component: Notfound },
 ];
 

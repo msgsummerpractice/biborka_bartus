@@ -4,8 +4,9 @@
   </button>
   <span class="example-fill-remaining-space"></span>
 
-  <a mat-button href="https://dog.ceo/dog-api/">Dogs</a>
-  <a mat-button href="https://www.pexels.com/search/cat/">Cats</a>
-  <a mat-button [routerLink]="'/profile'">Profile</a>
+  <a mat-button href="https://dog.ceo/dog-api/" routerLinkActive="active">Dogs</a>
+  <a mat-button href="https://www.pexels.com/search/cat/" routerLinkActive="active">Cats</a>
+  <a mat-button [routerLink]="'/profile'" routerLinkActive="active">Profile</a>
+  <a mat-button [routerLink]="'/login'" routerLinkActive="active">Login</a>
 </mat-toolbar>
 <router-outlet></router-outlet>
