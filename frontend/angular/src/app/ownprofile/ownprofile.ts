@@ -1,12 +1,13 @@
 import { Component, inject } from '@angular/core';
-import { Profile } from '../profile';
 import { AuthService } from '../auth';
+import { UsernamePipe } from '../username-pipe';
 
 @Component({
   selector: 'app-ownprofile',
-  imports: [],
+  imports: [UsernamePipe],
   templateUrl: './ownprofile.html',
 })
 export class Ownprofile {
   public authService = inject(AuthService);
+  public randomUsername = 'random_username';
 }
