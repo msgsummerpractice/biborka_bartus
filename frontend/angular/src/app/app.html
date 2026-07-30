@@ -1,19 +1,11 @@
 <mat-toolbar color="primary" class="flex justify-end">
-  <button mat-icon-button>
+  <button [routerLink]="'/homepage'" mat-icon-button>
     <mat-icon>home</mat-icon>
   </button>
   <span class="example-fill-remaining-space"></span>
 
   <a mat-button href="https://dog.ceo/dog-api/">Dogs</a>
   <a mat-button href="https://www.pexels.com/search/cat/">Cats</a>
+  <a mat-button [routerLink]="'/profile'">Profile</a>
 </mat-toolbar>
-
-<div class="p-4">
-  <h1 class="p-2 text-lg">Dog Gallery</h1>
-  <p class="p-2">Take a look at these dogs:</p>
-  <div class="p-4 grid sm:grid-cols-1 lg:grid-cols-3 gap-4">
-    <app-dog-image></app-dog-image>
-    <app-dog-image></app-dog-image>
-    <app-dog-image></app-dog-image>
-  </div>
-</div>
+<router-outlet></router-outlet>
