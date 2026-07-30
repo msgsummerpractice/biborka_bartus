@@ -1,3 +1,5 @@
-<div *isLoggedIn="true">
+@if(authService.isAuthenticated()){
+<div>
   <h1> Welcome to your profile</h1>
 </div>
+}

@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Profile } from '../profile';
+import { AuthService } from '../auth';
 
 @Component({
   selector: 'app-ownprofile',
-  imports: [Profile],
+  imports: [],
   templateUrl: './ownprofile.html',
 })
-export class Ownprofile {}
+export class Ownprofile {
+  public authService = inject(AuthService);
+}
