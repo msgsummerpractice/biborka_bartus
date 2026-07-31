@@ -20,15 +20,8 @@ export class LoginFormComponent {
   private readonly _formBuilder = inject(NonNullableFormBuilder);
   protected readonly loginFormGroup = this._formBuilder.group<LoginForm>({
     email: this._formBuilder.control('', [Validators.required, Validators.email]),
-    password: this._formBuilder.control('', [Validators.required]),
+    password: this._formBuilder.control('', [Validators.required, Validators.minLength(6)]),
   });
 
-  onFormSubmit(): void {
-    if (this.loginFormGroup.valid) {
-      const formValue = this.loginFormGroup.value;
-      console.log('Form submitted with values:', formValue);
-    } else {
-      console.log('Form is invalid');
-    }
-  }
+  onFormSubmit(): void {}
 }

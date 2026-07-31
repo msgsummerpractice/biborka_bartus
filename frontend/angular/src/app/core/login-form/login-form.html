@@ -5,12 +5,14 @@
 
     @if (loginFormGroup.controls.email.invalid) {
     <small class="text-error text text-red-500">Email is required.</small>
+    } @if (loginFormGroup.controls.email.hasError('email')) {
+    <small class="text-error text text-red-500">Please enter a valid email address.</small>
     }
   </div>
 
   <div class="p-4">
     <label for="password">Password: </label>
-    <input type="password" id="password" formControlName="password" required minlength="6" />
+    <input type="password" id="password" formControlName="password" />
     @if (loginFormGroup.controls.password.invalid) {
     <small class="text-error text text-red-500"
       >Password is required and must be at least 6 characters long.</small
