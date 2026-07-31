@@ -4,10 +4,10 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'username',
 })
 export class UsernamePipe implements PipeTransform {
-  transform(value: string | null): string | null {
+  transform(value: string | null): string {
     if (!value) {
-      return null;
+      return '';
     }
-    return '@' + value.toLowerCase();
+    return `@${value.toLowerCase()}`;
   }
 }

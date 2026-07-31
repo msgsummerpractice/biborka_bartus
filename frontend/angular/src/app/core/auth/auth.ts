@@ -4,10 +4,11 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root',
 })
 export class AuthService {
-  public isAuthenticated = signal(false);
+  private readonly isAuthenticated = signal<boolean>(false);
 
-  constructor() {}
-
+  getIsAuthenticated() {
+    return this.isAuthenticated();
+  }
   login(): void {
     this.isAuthenticated.set(true);
   }

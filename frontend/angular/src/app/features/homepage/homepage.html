@@ -1,0 +1,13 @@
+<div class="p-4">
+  <h1 class="p-2 text-lg">Dog Gallery</h1>
+  <p class="p-2">Take a look at these dogs:</p>
+  <div class="p-4 grid sm:grid-cols-1 lg:grid-cols-3 gap-4">
+    @for(item of dogArray; track $index) {
+    <div class="border bg-contain bg-orange-50 p-4">
+      <app-dog-image />
+      <p class="text-center">Dog {{$index + 1}}</p>
+      <p class="text-center">Cute</p>
+    </div>
+    }
+  </div>
+</div>

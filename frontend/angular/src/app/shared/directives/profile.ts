@@ -5,7 +5,7 @@ import { Directive, ViewContainerRef, inject, TemplateRef, input, effect } from 
 })
 export class Profile {
   private readonly _viewContainerRef: ViewContainerRef = inject(ViewContainerRef);
-  private readonly _templateRef = this._viewContainerRef.injector.get(TemplateRef);
+  private readonly _templateRef: TemplateRef<unknown> = inject(TemplateRef);
 
   isLoggedIn = input<boolean>(false);
 

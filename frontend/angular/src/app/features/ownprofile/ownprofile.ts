@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { AuthService } from '../auth';
-import { UsernamePipe } from '../username-pipe';
+import { AuthService } from '../../core/auth/auth';
+import { UsernamePipe } from '../../shared/pipes/username-pipe';
 
 @Component({
   selector: 'app-ownprofile',
@@ -8,6 +8,6 @@ import { UsernamePipe } from '../username-pipe';
   templateUrl: './ownprofile.html',
 })
 export class Ownprofile {
-  public authService = inject(AuthService);
   public randomUsername = 'random_username';
+  protected getIsAuthenticated = inject(AuthService).getIsAuthenticated;
 }

@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-notfound',
-  imports: [],
-  templateUrl: './notfound.html',
+  templateUrl: './not-found.html',
 })
 export class Notfound {}
