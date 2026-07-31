@@ -1,18 +1,20 @@
 import { Injectable, signal } from '@angular/core';
+import { WritableSignal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly isAuthenticated = signal<boolean>(false);
+  #isAuthenticatedSignal: WritableSignal<boolean> = signal(false);
+  isAuthenticated = this.#isAuthenticatedSignal.asReadonly();
 
   getIsAuthenticated() {
-    return this.isAuthenticated();
+    return this.#isAuthenticatedSignal();
   }
   login(): void {
-    this.isAuthenticated.set(true);
+    this.#isAuthenticatedSignal.set(true);
   }
   logout(): void {
-    this.isAuthenticated.set(false);
+    this.#isAuthenticatedSignal.set(false);
   }
 }

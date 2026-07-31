@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { DogImageComponent } from '../../shared/components/dog-image/dog-image.component';
+import { DogImage } from '../../shared/components/dog-image/dog-image';
 @Component({
   selector: 'app-homepage',
-  imports: [DogImageComponent],
+  imports: [DogImage],
   templateUrl: './homepage.html',
 })
 export class Homepage {

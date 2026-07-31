@@ -4,14 +4,13 @@ import { Notfound } from './features/not-found/not-found';
 import { Homepage } from './features/homepage/homepage';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { Ownprofile } from './features/ownprofile/ownprofile';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'homepage', pathMatch: 'full' },
   { path: 'homepage', component: Homepage },
   {
     path: 'profile',
-    loadComponent: () => import('./features/ownprofile/ownprofile').then((m) => m.Ownprofile),
+    loadComponent: () => import('./features/own-profile/own-profile').then((m) => m.Ownprofile),
     canActivate: [authGuard],
   },
   { path: 'login', loadComponent: () => import('./features/login/login').then((m) => m.Login) },

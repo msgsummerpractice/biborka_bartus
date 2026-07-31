@@ -1,12 +1,13 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { OnInit } from '@angular/core';
 import { DogImageService } from '../../services/dog-image.service';
 
 @Component({
-  selector: 'app-dog-image',
+  selector: 'app-dog-image ',
   templateUrl: './dog-image.html',
 })
-export class DogImageComponent implements OnInit {
+export class DogImage implements OnInit {
+  dogSignal = input<number>(0);
   dogImage = signal<string | null>(null);
   private dogImageService = inject(DogImageService);
   ngOnInit(): void {

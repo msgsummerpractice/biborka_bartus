@@ -5,7 +5,7 @@ import { UsernamePipe } from '../../shared/pipes/username-pipe';
 @Component({
   selector: 'app-ownprofile',
   imports: [UsernamePipe],
-  templateUrl: './ownprofile.html',
+  templateUrl: './own-profile.html',
 })
 export class Ownprofile {
   public randomUsername = 'random_username';
