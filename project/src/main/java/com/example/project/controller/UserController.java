@@ -3,7 +3,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +20,9 @@ import com.example.project.dto.UserResponse;
 import com.example.project.dto.UserPatchRequest;
 import com.example.project.dto.UserRequest;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/users")
@@ -36,13 +38,12 @@ public class UserController {
         MediaType.APPLICATION_JSON_VALUE,
         MediaType.APPLICATION_XML_VALUE
     })
-    public List<ResponseEntity<UserResponse>> getUsers() {
+    public ResponseEntity<Page<UserResponse>> getUsers(Pageable pageable) {
         List<UserResponse> users = userService.getAllUsers().stream()
                 .map(user -> new UserResponse(user.getId(), user.getLastName(), user.getFirstName(), user.getUsername(), user.getEmail()))
                 .toList();
-        return users.stream()
-                .map(ResponseEntity::ok)
-                .toList();
+        Page<UserResponse> page = new PageImpl<>(users, pageable, users.size());
+        return ResponseEntity.ok(page);
     }
 
     @GetMapping(value = "/{id}", produces = {
@@ -95,11 +96,6 @@ public class UserController {
         userResponse.setEmail(request.getEmail());
         UserResponse savedUser = userService.saveUser(userResponse);
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
     }
 
     @PutMapping("/update/{id}")

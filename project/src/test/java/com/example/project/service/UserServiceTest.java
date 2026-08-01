@@ -14,7 +14,9 @@ import com.example.project.repository.UserRepository;
 
 import java.util.Optional;
 
+import com.example.project.dto.UserRequest;
 import com.example.project.dto.UserResponse;
+import com.example.project.dto.UserPatchRequest;
 
 
 public class UserServiceTest {
@@ -103,6 +105,46 @@ public class UserServiceTest {
         when(userRepository.findByUsername("nonexistentuser")).thenReturn(java.util.Optional.empty());
         java.util.Optional<UserResponse> user = userService.getUserByUsername("nonexistentuser");
         assertEquals(java.util.Optional.empty(), user);
+    }
+
+    @Test
+    public void testUpdateUser() {
+        User user = new User(1L, "John Doe", null, null, "test@example.com", null);
+        UserRequest mockUserRequest = new UserRequest();
+        mockUserRequest.setFirstName("John");
+        mockUserRequest.setLastName("Doe");
+        mockUserRequest.setUsername("johndoe");
+        mockUserRequest.setEmail("test@example.com");
+        mockUserRequest.setPassword("password123");
+
+        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(user));
+        when(userRepository.save(org.mockito.Mockito.any(User.class))).thenReturn(user);
+
+        UserResponse updatedUser = userService.updateUser(1L, mockUserRequest);
+        assertEquals(mockUserRequest.getFirstName(), updatedUser.getFirstName());
+        assertEquals(mockUserRequest.getLastName(), updatedUser.getLastName());
+        assertEquals(mockUserRequest.getUsername(), updatedUser.getUsername());
+        assertEquals(mockUserRequest.getEmail(), updatedUser.getEmail());
+    }
+
+    @Test
+    public void testPatchUser() {
+        User user = new User(1L, "John Doe", null, null, "test@example.com", null);
+
+        UserPatchRequest mockUserPatchRequest = new UserPatchRequest();
+        mockUserPatchRequest.setFirstName("John");
+        mockUserPatchRequest.setLastName("Doe");
+        mockUserPatchRequest.setUsername("johndoe");
+        mockUserPatchRequest.setEmail("test@example.com");
+
+        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(user));
+        when(userRepository.save(org.mockito.Mockito.any(User.class))).thenReturn(user);
+
+        UserResponse patchedUser = userService.patchUser(1L, mockUserPatchRequest);
+        assertEquals(mockUserPatchRequest.getFirstName(), patchedUser.getFirstName());
+        assertEquals(mockUserPatchRequest.getLastName(), patchedUser.getLastName());
+        assertEquals(mockUserPatchRequest.getUsername(), patchedUser.getUsername());
+        assertEquals(mockUserPatchRequest.getEmail(), patchedUser.getEmail());
     }
     
 }
