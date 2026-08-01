@@ -1,5 +1,6 @@
 package com.example.project.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,7 +14,8 @@ import com.example.project.service.UserService;
 
 import jakarta.validation.Valid;
 
-import com.example.project.model.User;
+import com.example.project.dto.UserResponse;
+import com.example.project.dto.UserRequest;
 import java.util.List;
 
 @RestController
@@ -27,36 +29,56 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getUsers() {
-        return userService.getAllUsers();
+    public List<ResponseEntity<UserResponse>> getUsers() {
+        List<UserResponse> users = userService.getAllUsers().stream()
+                .map(user -> new UserResponse(user.getId(), user.getLastName(), user.getFirstName(), user.getUsername(), user.getEmail()))
+                .toList();
+        return users.stream()
+                .map(ResponseEntity::ok)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         if(id != null && id < 0) {
             throw new IllegalArgumentException("ID must be a non-negative value.");
         }
-        return userService.getUserById(id).orElse(null);
+        return userService.getUserById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/email/{email}")
-    public User getUserByEmail(@PathVariable String email) {
-        return userService.getUserByEmail(email).orElse(null);
+    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) {
+        return userService.getUserByEmail(email)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/username/{username}")
-    public User getUserByUsername(@PathVariable String username) {
-        return userService.getUserByUsername(username).orElse(null);
+    public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
+        return userService.getUserByUsername(username)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public void deleteUserById(@PathVariable Long id) {
+        if(id != null && id < 0) {
+            throw new IllegalArgumentException("ID must be a non-negative value.");
+        }
         userService.deleteUserById(id);
     }
 
     @PostMapping("/save")
-    public User saveUser(@Valid @RequestBody User user) {
-        return userService.saveUser(user);
+    public ResponseEntity<UserResponse> saveUser(@Valid @RequestBody UserRequest request) {
+        UserResponse userResponse = new UserResponse();
+        userResponse.setLastName(request.getLastName());
+        userResponse.setFirstName(request.getFirstName());
+        userResponse.setUsername(request.getUsername());
+        userResponse.setEmail(request.getEmail());
+        UserResponse savedUser = userService.saveUser(userResponse);
+        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -64,4 +86,5 @@ public class UserController {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
+   
 }

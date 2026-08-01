@@ -12,6 +12,11 @@ import org.mockito.Mock;
 import com.example.project.model.User;
 import com.example.project.repository.UserRepository;
 
+import java.util.Optional;
+
+import com.example.project.dto.UserResponse;
+
+
 public class UserServiceTest {
     @InjectMocks
     private UserServiceImpl userService;
@@ -36,18 +41,18 @@ public class UserServiceTest {
 
     @Test
     public void testGetUserById() {
-        User mockUser = new User();
+        User mockUser = new User(1L, "John Doe", null, null, null, null);
         when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(mockUser));
-        User user = userService.getUserById(1L).orElse(mockUser);
-        assertEquals(mockUser, user);
+        Optional<UserResponse> user = userService.getUserById(1L);
+        assertEquals(mockUser.getId(), user.get().getId());
     }
 
     @Test
     public void testGetUserByEmail() {
-        User mockUser = new User();
+        User mockUser = new User(1L, "John Doe", null, null, "test@example.com", null);
         when(userRepository.findByEmail("test@example.com")).thenReturn(java.util.Optional.of(mockUser));
-        User user = userService.getUserByEmail("test@example.com").orElse(mockUser);
-        assertEquals(mockUser, user);
+        Optional<UserResponse> user = userService.getUserByEmail("test@example.com");
+        assertEquals(mockUser.getId(), user.get().getId());
     }
 
     @Test
@@ -58,38 +63,45 @@ public class UserServiceTest {
 
     @Test
     public void testSaveUser() {
-        User mockUser = new User();
-        when(userRepository.save(mockUser)).thenReturn(mockUser);
-        User savedUser = userService.saveUser(mockUser);
-        assertEquals(mockUser, savedUser);
+        UserResponse mockUserResponse = new UserResponse();
+        mockUserResponse.setId(1L);
+        mockUserResponse.setFirstName("John");
+        mockUserResponse.setLastName("Doe");
+        mockUserResponse.setUsername("johndoe");
+        mockUserResponse.setEmail("test@example.com");
+        when(userRepository.save(org.mockito.Mockito.any(User.class))).thenReturn(new User(1L, "John Doe", null, null, "test@example.com", null));
+        UserResponse savedUser = userService.saveUser(mockUserResponse);
+        assertEquals(mockUserResponse.getId(), savedUser.getId());
     }
 
     @Test
     public void testGetUserByUsername() {
-        User mockUser = new User();
+        User mockUser = new User(1L, "John Doe", null, "testuser", null, null);
         when(userRepository.findByUsername("testuser")).thenReturn(java.util.Optional.of(mockUser));
-        User user = userService.getUserByUsername("testuser").orElse(mockUser);
-        assertEquals(mockUser, user);
+        Optional<UserResponse> user = userService.getUserByUsername("testuser");
+        assertEquals(mockUser.getId(), user.get().getId());
+
     }
 
     @Test
     public void testGetUserByIdWithNonExistingId() {
         when(userRepository.findById(999L)).thenReturn(java.util.Optional.empty());
-        java.util.Optional<User> user = userService.getUserById(999L);
+        java.util.Optional<UserResponse> user = userService.getUserById(999L);
         assertEquals(java.util.Optional.empty(), user);
+
     }
 
     @Test
     public void testGetUserByEmailWithNonExistingEmail() {
         when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(java.util.Optional.empty());
-        java.util.Optional<User> user = userService.getUserByEmail("nonexistent@example.com");
+        java.util.Optional<UserResponse> user = userService.getUserByEmail("nonexistent@example.com");
         assertEquals(java.util.Optional.empty(), user);
     }
 
     @Test
     public void testGetUserByUsernameWithNonExistingUsername() {
         when(userRepository.findByUsername("nonexistentuser")).thenReturn(java.util.Optional.empty());
-        java.util.Optional<User> user = userService.getUserByUsername("nonexistentuser");
+        java.util.Optional<UserResponse> user = userService.getUserByUsername("nonexistentuser");
         assertEquals(java.util.Optional.empty(), user);
     }
     

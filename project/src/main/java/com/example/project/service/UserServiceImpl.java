@@ -2,7 +2,10 @@ package com.example.project.service;
 
 import org.springframework.stereotype.Service;
 import java.util.Optional;
+
+import com.example.project.dto.UserResponse;
 import com.example.project.model.User;
+import com.example.project.dto.UserRequest;
 import com.example.project.repository.UserRepository;
 
 import java.util.List;
@@ -22,13 +25,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    public Optional<UserResponse> getUserById(Long id) {
+        Optional<User> userOptional = userRepository.findById(id);
+        return userOptional.map(this::convertToUserResponse);
     }
 
     @Override
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public Optional<UserResponse> getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(this::convertToUserResponse);
     }
 
     @Override
@@ -37,12 +42,41 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public <S extends User> S saveUser(S user) {
-        return userRepository.save(user);
+    public <S extends UserResponse> S saveUser(S userResponse) {
+        User user = new User();
+        user.setId(userResponse.getId());
+        user.setFirstName(userResponse.getFirstName());
+        user.setLastName(userResponse.getLastName());
+        user.setUsername(userResponse.getUsername());
+        user.setEmail(userResponse.getEmail());
+        User savedUser = userRepository.save(user);
+        return (S) convertToUserResponse(savedUser); 
     }
 
     @Override
-    public Optional<User> getUserByUsername(String username) {
-       return userRepository.findByUsername(username);
+    public Optional<UserResponse> getUserByUsername(String username) {
+       return userRepository.findByUsername(username)
+               .map(this::convertToUserResponse);
     }
+
+    @Override
+    public void updateUser(UserRequest userRequest) {
+        User user = new User();
+        user.setFirstName(userRequest.getFirstName());
+        user.setLastName(userRequest.getLastName());
+        user.setUsername(userRequest.getUsername());
+        user.setEmail(userRequest.getEmail());
+        userRepository.save(user);
+    }
+
+    private UserResponse convertToUserResponse(User user) {
+        UserResponse response = new UserResponse();
+        response.setId(user.getId());
+        response.setLastName(user.getLastName());
+        response.setFirstName(user.getFirstName());
+        response.setUsername(user.getUsername());
+        response.setEmail(user.getEmail());
+        return response;
+    }
+
 }
