@@ -50,7 +50,7 @@ public class UserController {
         MediaType.APPLICATION_JSON_VALUE,
         MediaType.APPLICATION_XML_VALUE
     })
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable("id") Long id) {
         if(id != null && id < 0) {
             throw new IllegalArgumentException("ID must be a non-negative value.");
         }
@@ -63,7 +63,7 @@ public class UserController {
         MediaType.APPLICATION_JSON_VALUE,
         MediaType.APPLICATION_XML_VALUE
     })
-    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable("email") String email) {
         return userService.getUserByEmail(email)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -73,14 +73,14 @@ public class UserController {
         MediaType.APPLICATION_JSON_VALUE,
         MediaType.APPLICATION_XML_VALUE
     })
-    public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
+    public ResponseEntity<UserResponse> getUserByUsername(@PathVariable("username") String username) {
         return userService.getUserByUsername(username)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUserById(@PathVariable Long id) {
+    public void deleteUserById(@PathVariable("id") Long id) {
         if(id != null && id < 0) {
             throw new IllegalArgumentException("ID must be a non-negative value.");
         }
@@ -99,7 +99,7 @@ public class UserController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserRequest userRequest) {
         if(id != null && id < 0) {
             throw new IllegalArgumentException("ID must be a non-negative value.");
         }
@@ -108,7 +108,7 @@ public class UserController {
     }
 
     @PatchMapping("/patch/{id}")
-    public ResponseEntity<UserResponse> patchUser(@PathVariable Long id, @RequestBody UserPatchRequest userRequest) {
+    public ResponseEntity<UserResponse> patchUser(@PathVariable("id") Long id, @RequestBody UserPatchRequest userRequest) {
         if(id != null && id < 0) {
             throw new IllegalArgumentException("ID must be a non-negative value.");
         }
