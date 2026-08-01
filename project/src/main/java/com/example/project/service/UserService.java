@@ -2,14 +2,17 @@ package com.example.project.service;
 
 import com.example.project.model.User;
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
 
     List<User> getAllUsers();
 
-    User getUserById(Long id);
+    Optional<User> getUserById(Long id);
 
-    User getUserByEmail(String email);
+    Optional<User> getUserByEmail(String email);
+
+    Optional<User> getUserByUsername(String username);
 
     void deleteUserById(Long id);
 

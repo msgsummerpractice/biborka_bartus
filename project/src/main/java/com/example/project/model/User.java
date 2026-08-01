@@ -1,9 +1,11 @@
 package com.example.project.model;
-import jakarta.annotation.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,8 +19,7 @@ import lombok.ToString;
 public class User {
 
     @Id
-    @Generated(value = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id")
+    @GeneratedValue
     private Long id;
 
     @Column(name = "lastname")
@@ -27,17 +28,12 @@ public class User {
     @Column(name = "firstname")
     private String firstName;
 
-    @Column(name = "username")
+    @NotBlank(message = "Username is mandatory")
     private String username;
 
-    @Column(name = "email")
+    @Email(message = "Email should be valid")
     private String email;
 
-    @Column(name = "password")
     private String password;
 
-    public User(Long id, String username) {
-        this.id = id;
-        this.username = username;
-    }
 }

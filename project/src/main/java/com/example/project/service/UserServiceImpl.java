@@ -1,6 +1,7 @@
 package com.example.project.service;
 
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 import com.example.project.model.User;
 import com.example.project.repository.UserRepository;
 
@@ -17,17 +18,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllUsers() {
-        return userRepository.getAllUsers();
+        return userRepository.findAll();
     }
 
     @Override
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
     }
 
     @Override
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     @Override
@@ -36,7 +37,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public <S extends User> S saveUser(S entity) {
-        return userRepository.save(entity);
+    public <S extends User> S saveUser(S user) {
+        return userRepository.save(user);
+    }
+
+    @Override
+    public Optional<User> getUserByUsername(String username) {
+       return userRepository.findByUsername(username);
     }
 }
