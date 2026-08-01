@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.example.project.dto.UserResponse;
 import com.example.project.model.User;
+import com.example.project.dto.UserPatchRequest;
 import com.example.project.dto.UserRequest;
 import com.example.project.repository.UserRepository;
 
@@ -77,6 +78,46 @@ public class UserServiceImpl implements UserService {
         response.setUsername(user.getUsername());
         response.setEmail(user.getEmail());
         return response;
+    }
+
+    @Override
+    public UserResponse updateUser(Long id, UserRequest userRequest) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setFirstName(userRequest.getFirstName());
+            user.setLastName(userRequest.getLastName());
+            user.setUsername(userRequest.getUsername());
+            user.setEmail(userRequest.getEmail());
+            User updatedUser = userRepository.save(user);
+            return convertToUserResponse(updatedUser);
+        } else {
+            throw new RuntimeException("User not found with id: " + id);
+        }
+    }
+
+    @Override
+    public UserResponse patchUser(Long id, UserPatchRequest userRequest) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (userRequest.getFirstName() != null) {
+                user.setFirstName(userRequest.getFirstName());
+            }
+            if (userRequest.getLastName() != null) {
+                user.setLastName(userRequest.getLastName());
+            }
+            if (userRequest.getUsername() != null) {
+                user.setUsername(userRequest.getUsername());
+            }
+            if (userRequest.getEmail() != null) {
+                user.setEmail(userRequest.getEmail());
+            }
+            User updatedUser = userRepository.save(user);
+            return convertToUserResponse(updatedUser);
+        } else {
+            throw new RuntimeException("User not found with id: " + id);
+        }
     }
 
 }

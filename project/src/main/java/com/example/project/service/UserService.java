@@ -1,6 +1,7 @@
 package com.example.project.service;
 
 import com.example.project.model.User;
+import com.example.project.dto.UserPatchRequest;
 import com.example.project.dto.UserRequest;
 import com.example.project.dto.UserResponse;
 import java.util.List;
@@ -21,5 +22,9 @@ public interface UserService {
     <S extends UserResponse> S saveUser(S entity);
 
     void updateUser(UserRequest user);
+
+    UserResponse updateUser(Long id, UserRequest userRequest);
+
+    UserResponse patchUser(Long id, UserPatchRequest userRequest);
 
 }

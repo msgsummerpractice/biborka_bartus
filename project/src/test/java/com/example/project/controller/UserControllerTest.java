@@ -1,13 +1,19 @@
 package com.example.project.controller;
 
+import com.example.project.dto.UserRequest;
 import com.example.project.dto.UserResponse;
 import com.example.project.service.UserService;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,4 +161,59 @@ public class UserControllerTest {
                 .content("{}"))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    public void testSaveUserWithMissingFields() throws Exception {
+        String userJson = "{\"id\":1,\"name\":\"John Doe\"}";
+        mockMvc.perform(post("/users/save")
+                .contentType("application/json")
+                .content(userJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testUpdateUserWithInvalidData() throws Exception {
+        String userJson = "{\"firstName\":\"\",\"lastName\":\"\",\"username\":\"\",\"email\":\"invalid-email\"}";
+        mockMvc.perform(put("/users/update/1")
+                .contentType("application/json")
+                .content(userJson))
+                .andExpect(status().isBadRequest());
+    }
+    
+    @Test
+    public void testUpdateUserWithNullData() throws Exception {
+        mockMvc.perform(put("/users/update/1")
+                .contentType("application/json")
+                .content("{}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testUpdateUser() throws Exception {
+       UserResponse mockUserResponse = new UserResponse();
+        mockUserResponse.setId(1L);
+        mockUserResponse.setFirstName("John");
+        mockUserResponse.setLastName("Doe");
+        mockUserResponse.setUsername("johndoe");
+        mockUserResponse.setEmail("john.doe@example.com");
+        when(userService.updateUser(eq(1L), any(UserRequest.class))).thenReturn(mockUserResponse);
+
+        String userJson = "{\"firstName\":\"John\",\"lastName\":\"Doe\",\"username\":\"johndoe\",\"email\":\"john.doe@example.com\", \"password\":\"password123\"}";
+        mockMvc.perform(put("/users/update/1")
+                .contentType("application/json")
+                .content(userJson))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testPatchUser() throws Exception {
+        String userJson = "{\"firstName\":\"John\",\"lastName\":\"Doe\"}";
+        mockMvc.perform(patch("/users/patch/1")
+                .contentType("application/json")
+                .content(userJson))
+                .andExpect(status().isOk());
+    }
+
+
+        
 }
