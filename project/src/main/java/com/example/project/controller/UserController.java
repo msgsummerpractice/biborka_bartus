@@ -95,13 +95,8 @@ public class UserController {
     @PostMapping("/save")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<UserResponse> saveUser(@Valid @RequestBody UserRequest request) {
-        UserResponse userResponse = new UserResponse();
-        userResponse.setLastName(request.getLastName());
-        userResponse.setFirstName(request.getFirstName());
-        userResponse.setUsername(request.getUsername());
-        userResponse.setEmail(request.getEmail());
-        UserResponse savedUser = userService.saveUser(userResponse);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+        UserResponse savedUser = userService.saveUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 
     @PutMapping("/update/{id}")

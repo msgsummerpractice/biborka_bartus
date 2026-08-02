@@ -1,6 +1,7 @@
 package com.example.project.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,5 +22,7 @@ public class UserRequest {
 
     @NotBlank(message = "Password is mandatory")
     private String password;
+
+    private Set<Long> roleIds;
 
 }

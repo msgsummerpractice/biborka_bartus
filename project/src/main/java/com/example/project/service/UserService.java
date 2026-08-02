@@ -19,7 +19,7 @@ public interface UserService {
 
     void deleteUserById(Long id);
 
-    <S extends UserResponse> S saveUser(S entity);
+    UserResponse saveUser(UserRequest request);
 
     void updateUser(UserRequest user);
 

@@ -1,12 +1,17 @@
 package com.example.project.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.example.project.dto.UserResponse;
+import com.example.project.model.Role;
 import com.example.project.model.User;
 import com.example.project.dto.UserPatchRequest;
 import com.example.project.dto.UserRequest;
+import com.example.project.repository.RoleRepository;
 import com.example.project.repository.UserRepository;
 
 import java.util.List;
@@ -15,9 +20,13 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    
-    public UserServiceImpl(UserRepository userRepository) {
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -27,14 +36,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserResponse> getUserById(Long id) {
-        Optional<User> userOptional = userRepository.findById(id);
-        return userOptional.map(this::convertToUserResponse);
+        return userRepository.findById(id).map(this::convertToUserResponse);
     }
 
     @Override
     public Optional<UserResponse> getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .map(this::convertToUserResponse);
+        return userRepository.findByEmail(email).map(this::convertToUserResponse);
+    }
+
+    @Override
+    public Optional<UserResponse> getUserByUsername(String username) {
+        return userRepository.findByUsername(username).map(this::convertToUserResponse);
     }
 
     @Override
@@ -43,21 +55,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public <S extends UserResponse> S saveUser(S userResponse) {
-        User user = new User();
-        user.setId(userResponse.getId());
-        user.setFirstName(userResponse.getFirstName());
-        user.setLastName(userResponse.getLastName());
-        user.setUsername(userResponse.getUsername());
-        user.setEmail(userResponse.getEmail());
-        User savedUser = userRepository.save(user);
-        return (S) convertToUserResponse(savedUser); 
-    }
+    public UserResponse saveUser(UserRequest request) {
+        if (request.getRoleIds() == null || request.getRoleIds().isEmpty()) {
+            throw new IllegalArgumentException("At least one role is required");
+        }
+        Set<Role> roles = resolveRoles(request.getRoleIds());
 
-    @Override
-    public Optional<UserResponse> getUserByUsername(String username) {
-       return userRepository.findByUsername(username)
-               .map(this::convertToUserResponse);
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRoles(roles);
+
+        User savedUser = userRepository.save(user);
+        return convertToUserResponse(savedUser);
     }
 
     @Override
@@ -67,7 +80,53 @@ public class UserServiceImpl implements UserService {
         user.setLastName(userRequest.getLastName());
         user.setUsername(userRequest.getUsername());
         user.setEmail(userRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        if (userRequest.getRoleIds() != null && !userRequest.getRoleIds().isEmpty()) {
+            user.setRoles(resolveRoles(userRequest.getRoleIds()));
+        }
         userRepository.save(user);
+    }
+
+    @Override
+    public UserResponse updateUser(Long id, UserRequest userRequest) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        user.setFirstName(userRequest.getFirstName());
+        user.setLastName(userRequest.getLastName());
+        user.setUsername(userRequest.getUsername());
+        user.setEmail(userRequest.getEmail());
+
+        if (userRequest.getPassword() != null && !userRequest.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        }
+        if (userRequest.getRoleIds() != null && !userRequest.getRoleIds().isEmpty()) {
+            user.setRoles(resolveRoles(userRequest.getRoleIds()));
+        }
+
+        User updatedUser = userRepository.save(user);
+        return convertToUserResponse(updatedUser);
+    }
+
+    @Override
+    public UserResponse patchUser(Long id, UserPatchRequest userRequest) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        if (userRequest.getFirstName() != null) user.setFirstName(userRequest.getFirstName());
+        if (userRequest.getLastName() != null) user.setLastName(userRequest.getLastName());
+        if (userRequest.getUsername() != null) user.setUsername(userRequest.getUsername());
+        if (userRequest.getEmail() != null) user.setEmail(userRequest.getEmail());
+
+        User updatedUser = userRepository.save(user);
+        return convertToUserResponse(updatedUser);
+    }
+
+    private Set<Role> resolveRoles(Set<Long> roleIds) {
+        return roleIds.stream()
+                .map(id -> roleRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Role not found with id: " + id)))
+                .collect(Collectors.toSet());
     }
 
     private UserResponse convertToUserResponse(User user) {
@@ -79,45 +138,4 @@ public class UserServiceImpl implements UserService {
         response.setEmail(user.getEmail());
         return response;
     }
-
-    @Override
-    public UserResponse updateUser(Long id, UserRequest userRequest) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            user.setFirstName(userRequest.getFirstName());
-            user.setLastName(userRequest.getLastName());
-            user.setUsername(userRequest.getUsername());
-            user.setEmail(userRequest.getEmail());
-            User updatedUser = userRepository.save(user);
-            return convertToUserResponse(updatedUser);
-        } else {
-            throw new RuntimeException("User not found with id: " + id);
-        }
-    }
-
-    @Override
-    public UserResponse patchUser(Long id, UserPatchRequest userRequest) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            if (userRequest.getFirstName() != null) {
-                user.setFirstName(userRequest.getFirstName());
-            }
-            if (userRequest.getLastName() != null) {
-                user.setLastName(userRequest.getLastName());
-            }
-            if (userRequest.getUsername() != null) {
-                user.setUsername(userRequest.getUsername());
-            }
-            if (userRequest.getEmail() != null) {
-                user.setEmail(userRequest.getEmail());
-            }
-            User updatedUser = userRepository.save(user);
-            return convertToUserResponse(updatedUser);
-        } else {
-            throw new RuntimeException("User not found with id: " + id);
-        }
-    }
-
 }

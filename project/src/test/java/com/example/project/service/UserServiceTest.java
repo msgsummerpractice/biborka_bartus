@@ -1,150 +1,264 @@
 package com.example.project.service;
 
 import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import static org.mockito.MockitoAnnotations.openMocks;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.*;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.example.project.model.Role;
 import com.example.project.model.User;
+import com.example.project.repository.RoleRepository;
 import com.example.project.repository.UserRepository;
-
-import java.util.Optional;
 
 import com.example.project.dto.UserRequest;
 import com.example.project.dto.UserResponse;
 import com.example.project.dto.UserPatchRequest;
 
-
 public class UserServiceTest {
+
     @InjectMocks
     private UserServiceImpl userService;
 
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private RoleRepository roleRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @BeforeEach
     public void setUp() {
         openMocks(this);
     }
-    
+
+    private User sampleUser(Long id, Role role) {
+        User user = new User();
+        user.setId(id);
+        user.setFirstName("John");
+        user.setLastName("Doe");
+        user.setUsername("johndoe");
+        user.setEmail("test@example.com");
+        user.setPassword("$2a$10$hashedvalue"); // pretend bcrypt hash
+        user.setRoles(Set.of(role));
+        return user;
+    }
+
     @Test
     public void testGetAllUsers() {
-        when(userService.getAllUsers()).thenReturn(List.of(
-                new User(1L, "John Doe", null, null, null, null),
-                new User(2L, "Jane Smith", null, null, null, null)
+        Role role = new Role(1L, "ROLE_USER");
+        when(userRepository.findAll()).thenReturn(List.of(
+                sampleUser(1L, role),
+                sampleUser(2L, role)
         ));
+
         List<User> users = userService.getAllUsers();
         assertEquals(2, users.size());
     }
 
     @Test
     public void testGetUserById() {
-        User mockUser = new User(1L, "John Doe", null, null, null, null);
-        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(mockUser));
+        Role role = new Role(1L, "ROLE_USER");
+        User mockUser = sampleUser(1L, role);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+
         Optional<UserResponse> user = userService.getUserById(1L);
+
+        assertTrue(user.isPresent());
         assertEquals(mockUser.getId(), user.get().getId());
     }
 
     @Test
+    public void testGetUserByIdWithNonExistingId() {
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        Optional<UserResponse> user = userService.getUserById(999L);
+
+        assertTrue(user.isEmpty());
+    }
+
+    @Test
     public void testGetUserByEmail() {
-        User mockUser = new User(1L, "John Doe", null, null, "test@example.com", null);
-        when(userRepository.findByEmail("test@example.com")).thenReturn(java.util.Optional.of(mockUser));
+        Role role = new Role(1L, "ROLE_USER");
+        User mockUser = sampleUser(1L, role);
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(mockUser));
+
         Optional<UserResponse> user = userService.getUserByEmail("test@example.com");
+
+        assertTrue(user.isPresent());
         assertEquals(mockUser.getId(), user.get().getId());
+    }
+
+    @Test
+    public void testGetUserByEmailWithNonExistingEmail() {
+        when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
+
+        Optional<UserResponse> user = userService.getUserByEmail("nonexistent@example.com");
+
+        assertTrue(user.isEmpty());
+    }
+
+    @Test
+    public void testGetUserByUsername() {
+        Role role = new Role(1L, "ROLE_USER");
+        User mockUser = sampleUser(1L, role);
+        when(userRepository.findByUsername("johndoe")).thenReturn(Optional.of(mockUser));
+
+        Optional<UserResponse> user = userService.getUserByUsername("johndoe");
+
+        assertTrue(user.isPresent());
+        assertEquals(mockUser.getId(), user.get().getId());
+    }
+
+    @Test
+    public void testGetUserByUsernameWithNonExistingUsername() {
+        when(userRepository.findByUsername("nonexistentuser")).thenReturn(Optional.empty());
+
+        Optional<UserResponse> user = userService.getUserByUsername("nonexistentuser");
+
+        assertTrue(user.isEmpty());
     }
 
     @Test
     public void testDeleteUserById() {
         userService.deleteUserById(1L);
-        org.mockito.Mockito.verify(userRepository).deleteById(1L);
+        verify(userRepository).deleteById(1L);
     }
 
     @Test
-    public void testSaveUser() {
-        UserResponse mockUserResponse = new UserResponse();
-        mockUserResponse.setId(1L);
-        mockUserResponse.setFirstName("John");
-        mockUserResponse.setLastName("Doe");
-        mockUserResponse.setUsername("johndoe");
-        mockUserResponse.setEmail("test@example.com");
-        when(userRepository.save(org.mockito.Mockito.any(User.class))).thenReturn(new User(1L, "John Doe", null, null, "test@example.com", null));
-        UserResponse savedUser = userService.saveUser(mockUserResponse);
-        assertEquals(mockUserResponse.getId(), savedUser.getId());
+    public void testSaveUser_hashesPasswordBeforeSaving() {
+        UserRequest request = new UserRequest();
+        request.setFirstName("John");
+        request.setLastName("Doe");
+        request.setUsername("johndoe");
+        request.setEmail("test@example.com");
+        request.setPassword("plaintext123");
+        request.setRoleIds(Set.of(1L));
+
+        Role role = new Role(1L, "ROLE_USER");
+        when(roleRepository.findById(1L)).thenReturn(Optional.of(role));
+        when(passwordEncoder.encode("plaintext123")).thenReturn("$2a$10$hashedvalue");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User u = invocation.getArgument(0);
+            u.setId(1L);
+            return u;
+        });
+
+        UserResponse response = userService.saveUser(request);
+
+        // Capture what was actually persisted
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        User persisted = captor.getValue();
+
+        // The stored password must be the encoded value, never the raw one
+        assertEquals("$2a$10$hashedvalue", persisted.getPassword());
+        assertNotEquals("plaintext123", persisted.getPassword());
+
+        // The role must be resolved and attached
+        assertTrue(persisted.getRoles().contains(role));
+
+        // The response must never expose a password field at all
+        assertEquals("johndoe", response.getUsername());
+        assertEquals("test@example.com", response.getEmail());
+        // (No assertion on response.getPassword() — it shouldn't exist as a method/field.)
     }
 
     @Test
-    public void testGetUserByUsername() {
-        User mockUser = new User(1L, "John Doe", null, "testuser", null, null);
-        when(userRepository.findByUsername("testuser")).thenReturn(java.util.Optional.of(mockUser));
-        Optional<UserResponse> user = userService.getUserByUsername("testuser");
-        assertEquals(mockUser.getId(), user.get().getId());
+    public void testSaveUser_throwsWhenRoleIdInvalid() {
+        UserRequest request = new UserRequest();
+        request.setFirstName("John");
+        request.setLastName("Doe");
+        request.setUsername("johndoe");
+        request.setEmail("test@example.com");
+        request.setPassword("plaintext123");
+        request.setRoleIds(Set.of(999L));
 
+        when(roleRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> userService.saveUser(request));
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
-    public void testGetUserByIdWithNonExistingId() {
-        when(userRepository.findById(999L)).thenReturn(java.util.Optional.empty());
-        java.util.Optional<UserResponse> user = userService.getUserById(999L);
-        assertEquals(java.util.Optional.empty(), user);
+    public void testUpdateUser_reHashesPasswordWhenProvided() {
+        Role existingRole = new Role(1L, "ROLE_USER");
+        User existing = sampleUser(1L, existingRole);
 
+        UserRequest request = new UserRequest();
+        request.setFirstName("Johnny");
+        request.setLastName("Doe");
+        request.setUsername("johndoe");
+        request.setEmail("test@example.com");
+        request.setPassword("newplaintext");
+        request.setRoleIds(null); // not changing roles this time
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(passwordEncoder.encode("newplaintext")).thenReturn("$2a$10$newhash");
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        UserResponse updated = userService.updateUser(1L, request);
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertEquals("$2a$10$newhash", captor.getValue().getPassword());
+        assertEquals("Johnny", updated.getFirstName());
     }
 
     @Test
-    public void testGetUserByEmailWithNonExistingEmail() {
-        when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(java.util.Optional.empty());
-        java.util.Optional<UserResponse> user = userService.getUserByEmail("nonexistent@example.com");
-        assertEquals(java.util.Optional.empty(), user);
-    }
+    public void testUpdateUser_doesNotWipePasswordWhenNotProvided() {
+        Role existingRole = new Role(1L, "ROLE_USER");
+        User existing = sampleUser(1L, existingRole); // password = "$2a$10$hashedvalue"
 
-    @Test
-    public void testGetUserByUsernameWithNonExistingUsername() {
-        when(userRepository.findByUsername("nonexistentuser")).thenReturn(java.util.Optional.empty());
-        java.util.Optional<UserResponse> user = userService.getUserByUsername("nonexistentuser");
-        assertEquals(java.util.Optional.empty(), user);
-    }
+        UserRequest request = new UserRequest();
+        request.setFirstName("Johnny");
+        request.setLastName("Doe");
+        request.setUsername("johndoe");
+        request.setEmail("test@example.com");
+        request.setPassword(null); // no new password given
+        request.setRoleIds(null);
 
-    @Test
-    public void testUpdateUser() {
-        User user = new User(1L, "John Doe", null, null, "test@example.com", null);
-        UserRequest mockUserRequest = new UserRequest();
-        mockUserRequest.setFirstName("John");
-        mockUserRequest.setLastName("Doe");
-        mockUserRequest.setUsername("johndoe");
-        mockUserRequest.setEmail("test@example.com");
-        mockUserRequest.setPassword("password123");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(user));
-        when(userRepository.save(org.mockito.Mockito.any(User.class))).thenReturn(user);
+        userService.updateUser(1L, request);
 
-        UserResponse updatedUser = userService.updateUser(1L, mockUserRequest);
-        assertEquals(mockUserRequest.getFirstName(), updatedUser.getFirstName());
-        assertEquals(mockUserRequest.getLastName(), updatedUser.getLastName());
-        assertEquals(mockUserRequest.getUsername(), updatedUser.getUsername());
-        assertEquals(mockUserRequest.getEmail(), updatedUser.getEmail());
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertEquals("$2a$10$hashedvalue", captor.getValue().getPassword()); // unchanged
+        verify(passwordEncoder, never()).encode(any());
     }
 
     @Test
     public void testPatchUser() {
-        User user = new User(1L, "John Doe", null, null, "test@example.com", null);
+        Role role = new Role(1L, "ROLE_USER");
+        User user = sampleUser(1L, role);
 
-        UserPatchRequest mockUserPatchRequest = new UserPatchRequest();
-        mockUserPatchRequest.setFirstName("John");
-        mockUserPatchRequest.setLastName("Doe");
-        mockUserPatchRequest.setUsername("johndoe");
-        mockUserPatchRequest.setEmail("test@example.com");
+        UserPatchRequest patchRequest = new UserPatchRequest();
+        patchRequest.setFirstName("Johnny");
+        patchRequest.setLastName(null); // not patched
+        patchRequest.setUsername(null);
+        patchRequest.setEmail(null);
 
-        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(user));
-        when(userRepository.save(org.mockito.Mockito.any(User.class))).thenReturn(user);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
 
-        UserResponse patchedUser = userService.patchUser(1L, mockUserPatchRequest);
-        assertEquals(mockUserPatchRequest.getFirstName(), patchedUser.getFirstName());
-        assertEquals(mockUserPatchRequest.getLastName(), patchedUser.getLastName());
-        assertEquals(mockUserPatchRequest.getUsername(), patchedUser.getUsername());
-        assertEquals(mockUserPatchRequest.getEmail(), patchedUser.getEmail());
+        UserResponse patched = userService.patchUser(1L, patchRequest);
+
+        assertEquals("Johnny", patched.getFirstName());
+        assertEquals("Doe", patched.getLastName()); // untouched field preserved
     }
-    
 }

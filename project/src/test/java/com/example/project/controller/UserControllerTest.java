@@ -93,14 +93,14 @@ public class UserControllerTest {
 
     @Test
     public void testSaveUser() throws Exception {
-        String userJson = "{\"id\":1,\"name\":\"John Doe\",\"email\":\"john.doe@example.com\", \"username\":\"johndoe\",\"password\":\"password123\"}";
+        String userJson = "{\"firstName\":\"John\",\"lastName\":\"Doe\",\"email\":\"john.doe@example.com\",\"username\":\"johndoe\",\"password\":\"password123\",\"roleIds\":[1]}";
         UserResponse mockUserResponse = new UserResponse();
         mockUserResponse.setId(1L);
         mockUserResponse.setFirstName("John");
         mockUserResponse.setLastName("Doe");
         mockUserResponse.setUsername("johndoe");
         mockUserResponse.setEmail("john.doe@example.com");
-        when(userService.saveUser(mockUserResponse)).thenReturn(mockUserResponse);
+        when(userService.saveUser(any(UserRequest.class))).thenReturn(mockUserResponse);
         mockMvc.perform(post("/users/save")
                 .contentType("application/json")
                 .content(userJson))
