@@ -2,6 +2,7 @@ package com.example.project.controller;
 import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -38,6 +39,7 @@ public class UserController {
         MediaType.APPLICATION_JSON_VALUE,
         MediaType.APPLICATION_XML_VALUE
     })
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<Page<UserResponse>> getUsers(Pageable pageable) {
         List<UserResponse> users = userService.getAllUsers().stream()
                 .map(user -> new UserResponse(user.getId(), user.getLastName(), user.getFirstName(), user.getUsername(), user.getEmail()))
@@ -50,6 +52,7 @@ public class UserController {
         MediaType.APPLICATION_JSON_VALUE,
         MediaType.APPLICATION_XML_VALUE
     })
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<UserResponse> getUserById(@PathVariable("id") Long id) {
         if(id != null && id < 0) {
             throw new IllegalArgumentException("ID must be a non-negative value.");
@@ -63,6 +66,7 @@ public class UserController {
         MediaType.APPLICATION_JSON_VALUE,
         MediaType.APPLICATION_XML_VALUE
     })
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<UserResponse> getUserByEmail(@PathVariable("email") String email) {
         return userService.getUserByEmail(email)
                 .map(ResponseEntity::ok)
@@ -80,6 +84,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteUserById(@PathVariable("id") Long id) {
         if(id != null && id < 0) {
             throw new IllegalArgumentException("ID must be a non-negative value.");
@@ -88,6 +93,7 @@ public class UserController {
     }
 
     @PostMapping("/save")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<UserResponse> saveUser(@Valid @RequestBody UserRequest request) {
         UserResponse userResponse = new UserResponse();
         userResponse.setLastName(request.getLastName());
@@ -99,6 +105,7 @@ public class UserController {
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<UserResponse> updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserRequest userRequest) {
         if(id != null && id < 0) {
             throw new IllegalArgumentException("ID must be a non-negative value.");
@@ -108,6 +115,7 @@ public class UserController {
     }
 
     @PatchMapping("/patch/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<UserResponse> patchUser(@PathVariable("id") Long id, @RequestBody UserPatchRequest userRequest) {
         if(id != null && id < 0) {
             throw new IllegalArgumentException("ID must be a non-negative value.");
