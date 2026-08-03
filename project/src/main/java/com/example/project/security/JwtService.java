@@ -82,4 +82,41 @@ public class JwtService {
             return true;
         }
     }
+
+    public String generateMfaToken(String username) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + 600000); // 10 minutes
+        return Jwts.builder()
+                .subject(username)
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    public boolean isMfaTokenValid(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return !claims.getExpiration().before(new Date());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isMfaPendingToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return !claims.getExpiration().before(new Date());
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
