@@ -1,0 +1,11 @@
+<mat-toolbar color="primary" class="flex justify-end">
+  <a mat-icon-button [routerLink]="'/homepage'">
+    <mat-icon>home</mat-icon>
+  </a>
+  <span class="example-fill-remaining-space"></span>
+
+  <a mat-button href="https://dog.ceo/dog-api/" routerLinkActive="active">Dogs</a>
+  <a mat-button href="https://www.pexels.com/search/cat/" routerLinkActive="active">Cats</a>
+  <a mat-button [routerLink]="'/profile'" routerLinkActive="active">Profile</a>
+  <a mat-button [routerLink]="'/login'" routerLinkActive="active">Login</a>
+</mat-toolbar>
