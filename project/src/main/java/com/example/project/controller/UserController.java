@@ -1,11 +1,18 @@
 package com.example.project.controller;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.project.service.UserService;
+
+import jakarta.validation.Valid;
+
 import com.example.project.model.User;
 import java.util.List;
 
@@ -13,24 +20,15 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private UserService userservice;
+    private UserService userService;
 
-    public UserController(UserService userservice) {
-        this.userservice = userservice;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
-
-    @Value("${app.title}")
-    private String title;
 
     @GetMapping
     public List<User> getUsers() {
-        List<User> users = userservice.getAllUsers();
-        StringBuilder sb = new StringBuilder();
-        for (User user : users) {
-            sb.append("ID: ").append(user.getId()).append(", Name: ").append(user.getName()).append("\n");
-        }
-
-        return users;
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
@@ -38,6 +36,32 @@ public class UserController {
         if(id != null && id < 0) {
             throw new IllegalArgumentException("ID must be a non-negative value.");
         }
-        return userservice.getUserById(id);
+        return userService.getUserById(id).orElse(null);
     }
+
+    @GetMapping("/email/{email}")
+    public User getUserByEmail(@PathVariable String email) {
+        return userService.getUserByEmail(email).orElse(null);
+    }
+
+    @GetMapping("/username/{username}")
+    public User getUserByUsername(@PathVariable String username) {
+        return userService.getUserByUsername(username).orElse(null);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUserById(@PathVariable Long id) {
+        userService.deleteUserById(id);
+    }
+
+    @PostMapping("/save")
+    public User saveUser(@Valid @RequestBody User user) {
+        return userService.saveUser(user);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
 }

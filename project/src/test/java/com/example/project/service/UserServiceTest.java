@@ -1,4 +1,5 @@
 package com.example.project.service;
+
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
@@ -25,12 +26,71 @@ public class UserServiceTest {
     
     @Test
     public void testGetAllUsers() {
-        when(userRepository.getAllUsers()).thenReturn(List.of(
-                new User(1L, "John Doe"),
-                new User(2L, "Jane Smith")
+        when(userService.getAllUsers()).thenReturn(List.of(
+                new User(1L, "John Doe", null, null, null, null),
+                new User(2L, "Jane Smith", null, null, null, null)
         ));
         List<User> users = userService.getAllUsers();
         assertEquals(2, users.size());
     }
 
+    @Test
+    public void testGetUserById() {
+        User mockUser = new User();
+        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(mockUser));
+        User user = userService.getUserById(1L).orElse(mockUser);
+        assertEquals(mockUser, user);
+    }
+
+    @Test
+    public void testGetUserByEmail() {
+        User mockUser = new User();
+        when(userRepository.findByEmail("test@example.com")).thenReturn(java.util.Optional.of(mockUser));
+        User user = userService.getUserByEmail("test@example.com").orElse(mockUser);
+        assertEquals(mockUser, user);
+    }
+
+    @Test
+    public void testDeleteUserById() {
+        userService.deleteUserById(1L);
+        org.mockito.Mockito.verify(userRepository).deleteById(1L);
+    }
+
+    @Test
+    public void testSaveUser() {
+        User mockUser = new User();
+        when(userRepository.save(mockUser)).thenReturn(mockUser);
+        User savedUser = userService.saveUser(mockUser);
+        assertEquals(mockUser, savedUser);
+    }
+
+    @Test
+    public void testGetUserByUsername() {
+        User mockUser = new User();
+        when(userRepository.findByUsername("testuser")).thenReturn(java.util.Optional.of(mockUser));
+        User user = userService.getUserByUsername("testuser").orElse(mockUser);
+        assertEquals(mockUser, user);
+    }
+
+    @Test
+    public void testGetUserByIdWithNonExistingId() {
+        when(userRepository.findById(999L)).thenReturn(java.util.Optional.empty());
+        java.util.Optional<User> user = userService.getUserById(999L);
+        assertEquals(java.util.Optional.empty(), user);
+    }
+
+    @Test
+    public void testGetUserByEmailWithNonExistingEmail() {
+        when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(java.util.Optional.empty());
+        java.util.Optional<User> user = userService.getUserByEmail("nonexistent@example.com");
+        assertEquals(java.util.Optional.empty(), user);
+    }
+
+    @Test
+    public void testGetUserByUsernameWithNonExistingUsername() {
+        when(userRepository.findByUsername("nonexistentuser")).thenReturn(java.util.Optional.empty());
+        java.util.Optional<User> user = userService.getUserByUsername("nonexistentuser");
+        assertEquals(java.util.Optional.empty(), user);
+    }
+    
 }

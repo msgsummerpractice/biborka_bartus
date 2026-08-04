@@ -1,33 +1,22 @@
 package com.example.project.repository;
 
-import java.util.ArrayList;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
 import java.util.List;
-
-import org.springframework.stereotype.Repository;
-
+import java.util.Optional;
 import com.example.project.model.User;
 
-@Repository
-public class UserRepository {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    List<User> users;
 
-    public UserRepository() {
-        users = new ArrayList<>();
-        users.add(new User(1L, "John Doe"));
-        users.add(new User(2L, "Jane Smith"));
-    }
+    Optional<User> findByEmail(String email);
 
-    public List<User> getAllUsers() {
-        return users;
-    }
+    Optional<User> findByUsername(String username);
 
-    public User getUserById(Long id) {
-        for (User user : users) {
-            if (user.getId().equals(id)) {
-                return user;
-            }
-        }
-        return null;
-    }
+    List<User> findTop10ByUsernameContainingIgnoreCaseOrderByUsernameAsc(String username);
+
+    @Query("SELECT COUNT(u) FROM User u")
+    int countUsers();
+
 }
