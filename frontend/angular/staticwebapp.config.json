@@ -1,0 +1,26 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/images/*.{png,jpg,gif}", "/css/*", "/js/*"]
+  },
+  "routes": [
+    {
+      "route": "/admin/*",
+      "allowedRoles": ["admin"],
+      "statusCode": 401
+    },
+    {
+      "route": "/old-page",
+      "redirect": "/new-page",
+      "statusCode": 301
+    },
+    {
+      "route": "/maintenance",
+      "statusCode": 503
+    },
+    {
+      "route": "/profile",
+      "allowedRoles": ["user", "admin"]
+    }
+  ]
+}
